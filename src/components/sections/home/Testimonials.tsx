@@ -1,27 +1,29 @@
 "use client";
 
 import { useRef } from "react";
-import {
-  motion,
-  useScroll,
-  useSpring,
-  useTransform,
-  type MotionValue,
-} from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import Button from "@/components/ui/Button";
 
 /*
- * Scroll-linked stack → scatter, same mechanic as HiringModes: cards start
- * piled near the canvas center (front card — highest z — roughly centered,
- * the rest fanned out a few degrees behind it) and settle into their
- * authored scattered position as the section scrolls into view. Each
- * card's stack offset is just "canvas center minus its own final center",
- * so at progress 0 every card's center lands on the same point.
+ * Time-delayed stack → scatter: cards sit piled the moment the section
+ * scrolls into view (front card — highest z — roughly centered, the rest
+ * fanned out a few degrees behind it), hold there briefly so the stack
+ * actually registers, then unstack into their authored scattered position
+ * on their own — no further scrolling required. Each card's stack offset
+ * is just "canvas center minus its own final center", so every card's
+ * midpoint lands on the same point while stacked. Cards nearer the front
+ * (higher z) peel apart a beat later than the back of the deck.
  */
 const CANVAS_W = 740;
 const CANVAS_H = 560;
 const CANVAS_CX = CANVAS_W / 2;
 const CANVAS_CY = CANVAS_H / 2;
+
+/* Seconds the deck holds fully stacked before it starts to unstack. */
+const STACK_HOLD = 1.2;
+/* Extra per-card delay (by z-order) so the deck peels apart back-to-front
+ * instead of every card moving in frozen lockstep. */
+const STAGGER_RANGE = 0.18;
 
 type Testimonial = {
   name: string;
@@ -170,41 +172,41 @@ function TestimonialCard({ t }: { t: Testimonial }) {
           className="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium"
           style={{ backgroundColor: t.chipBg, color: t.chipText }}
         >
-          Read more
+          {t.name}
         </span>
       </div>
-      <p className="absolute bottom-5 right-5 text-xs font-medium opacity-60">
-        {t.name}
-      </p>
     </motion.div>
   );
 }
 
-function StackedCard({
-  t,
-  progress,
-}: {
-  t: Testimonial;
-  progress: MotionValue<number>;
-}) {
+function StackedCard({ t, isInView }: { t: Testimonial; isInView: boolean }) {
   const centerX = t.left + t.width / 2;
   const centerY = t.top + t.height / 2;
   const stackDx = CANVAS_CX - centerX;
   const stackDy = CANVAS_CY - centerY;
-
-  const x = useTransform(progress, (v) => (1 - v) * stackDx);
-  const y = useTransform(progress, (v) => (1 - v) * stackDy);
-  const rotate = useTransform(progress, (v) => (1 - v) * t.stackRotate);
-  const boxShadow = useTransform(
-    progress,
-    [0, 1],
-    ["0 30px 50px rgba(0,0,0,0.22)", "0 20px 40px rgba(0,0,0,0.08)"]
-  );
+  const delay = STACK_HOLD + (t.z / 30) * STAGGER_RANGE;
 
   return (
     <motion.div
       className="absolute"
-      style={{ top: t.top, left: t.left, x, y, rotate, zIndex: t.z, boxShadow }}
+      initial={{
+        x: stackDx,
+        y: stackDy,
+        rotate: t.stackRotate,
+        boxShadow: "0 30px 50px rgba(0,0,0,0.22)",
+      }}
+      animate={
+        isInView
+          ? {
+              x: 0,
+              y: 0,
+              rotate: 0,
+              boxShadow: "0 20px 40px rgba(0,0,0,0.08)",
+            }
+          : undefined
+      }
+      transition={{ type: "spring", stiffness: 70, damping: 15, mass: 1, delay }}
+      style={{ top: t.top, left: t.left, zIndex: t.z }}
     >
       <TestimonialCard t={t} />
     </motion.div>
@@ -213,22 +215,10 @@ function StackedCard({
 
 export default function Testimonials() {
   const canvasRef = useRef<HTMLDivElement>(null);
-
-  /* 0 = stacked → 1 = scattered. Unlike HiringModes' row (which is only as
-   * tall as its cards), this canvas is a tall 560px box whose scattered
-   * cards span top-to-bottom but whose *stacked* cluster sits at its
-   * vertical center — so the trigger tracks the canvas's center crossing
-   * the viewport, not its top edge, otherwise the stack is already mostly
-   * expanded by the time it scrolls into view. */
-  const { scrollYProgress } = useScroll({
-    target: canvasRef,
-    offset: ["center 0.9", "center 0.35"],
-  });
-  const progress = useSpring(scrollYProgress, {
-    stiffness: 70,
-    damping: 18,
-    mass: 1,
-  });
+  /* Fires once the canvas is meaningfully in view; cards stay stacked
+   * until then, then unstack on a timer (see StackedCard's `delay`) —
+   * no further scrolling needed. */
+  const isInView = useInView(canvasRef, { once: true, amount: 0.4 });
 
   return (
     <section className="bg-white py-28">
@@ -283,14 +273,13 @@ export default function Testimonials() {
               <p className="mt-2.5 text-[14px] leading-[21px] opacity-80">
                 {t.body}
               </p>
-              <div className="mt-4 flex items-center justify-between">
+              <div className="mt-4">
                 <span
                   className="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium"
                   style={{ backgroundColor: t.chipBg, color: t.chipText }}
                 >
-                  Read more
+                  {t.name}
                 </span>
-                <p className="text-xs font-medium opacity-60">{t.name}</p>
               </div>
             </div>
           ))}
@@ -301,7 +290,7 @@ export default function Testimonials() {
           className="relative hidden h-[560px] w-[740px] shrink-0 xl:block"
         >
           {testimonials.map((t) => (
-            <StackedCard key={t.name} t={t} progress={progress} />
+            <StackedCard key={t.name} t={t} isInView={isInView} />
           ))}
         </div>
       </div>
