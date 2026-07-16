@@ -1,6 +1,8 @@
 import Hero from "@/components/sections/home/Hero";
 import HiringModes from "@/components/sections/home/HiringModes";
 import LogoMarquee from "@/components/sections/home/LogoMarquee";
+import TrustFeatures from "@/components/sections/home/TrustFeatures";
+import Stats from "@/components/sections/home/Stats";
 import Testimonials from "@/components/sections/home/Testimonials";
 
 export default function HomePage() {
@@ -9,6 +11,8 @@ export default function HomePage() {
       <Hero />
       <HiringModes />
       <LogoMarquee />
+      <TrustFeatures />
+      <Stats />
       <Testimonials />
     </>
   );
