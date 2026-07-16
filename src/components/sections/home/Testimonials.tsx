@@ -20,10 +20,10 @@ const CANVAS_CX = CANVAS_W / 2;
 const CANVAS_CY = CANVAS_H / 2;
 
 /* Seconds the deck holds fully stacked before it starts to unstack. */
-const STACK_HOLD = 1.2;
+const STACK_HOLD = 0.5;
 /* Extra per-card delay (by z-order) so the deck peels apart back-to-front
  * instead of every card moving in frozen lockstep. */
-const STAGGER_RANGE = 0.18;
+const STAGGER_RANGE = 0.12;
 
 type Testimonial = {
   name: string;
@@ -189,23 +189,9 @@ function StackedCard({ t, isInView }: { t: Testimonial; isInView: boolean }) {
   return (
     <motion.div
       className="absolute"
-      initial={{
-        x: stackDx,
-        y: stackDy,
-        rotate: t.stackRotate,
-        boxShadow: "0 30px 50px rgba(0,0,0,0.22)",
-      }}
-      animate={
-        isInView
-          ? {
-              x: 0,
-              y: 0,
-              rotate: 0,
-              boxShadow: "0 20px 40px rgba(0,0,0,0.08)",
-            }
-          : undefined
-      }
-      transition={{ type: "spring", stiffness: 70, damping: 15, mass: 1, delay }}
+      initial={{ x: stackDx, y: stackDy, rotate: t.stackRotate }}
+      animate={isInView ? { x: 0, y: 0, rotate: 0 } : undefined}
+      transition={{ type: "spring", stiffness: 130, damping: 16, mass: 0.9, delay }}
       style={{ top: t.top, left: t.left, zIndex: t.z }}
     >
       <TestimonialCard t={t} />
@@ -261,7 +247,7 @@ export default function Testimonials() {
             <div
               key={t.name}
               style={{ backgroundColor: t.bg, color: t.text }}
-              className="relative overflow-hidden rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.08)]"
+              className="relative overflow-hidden rounded-2xl p-6"
             >
               <StarRow light={t.text === "#ffffff"} />
               <h3
