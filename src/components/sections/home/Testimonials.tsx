@@ -149,7 +149,7 @@ function TestimonialCard({ t }: { t: Testimonial }) {
       }}
       whileHover={{ scale: 1.02 }}
       transition={{ type: "spring", stiffness: 300, damping: 22 }}
-      className="relative overflow-hidden rounded-2xl p-6"
+      className="relative flex flex-col overflow-hidden rounded-2xl p-6"
     >
       <StarRow light={t.text === "#ffffff"} />
       <h3
@@ -158,16 +158,11 @@ function TestimonialCard({ t }: { t: Testimonial }) {
       >
         {t.title}
       </h3>
-      <p className="mt-2.5 text-[14px] leading-[21px] opacity-80">{t.body}</p>
+      <p className="mt-2.5 line-clamp-3 text-[14px] leading-[21px] opacity-80">
+        {t.body}
+      </p>
 
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-20"
-        style={{
-          background: `linear-gradient(to bottom, transparent, ${t.bg} 70%)`,
-        }}
-      />
-      <div className="absolute bottom-5 left-6">
+      <div className="mt-auto pt-4">
         <span
           className="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium"
           style={{ backgroundColor: t.chipBg, color: t.chipText }}
