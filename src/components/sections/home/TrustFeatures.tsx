@@ -7,100 +7,96 @@ type Feature = {
   title: string;
   body: string;
   bg: string;
-  icon: "pencil" | "people" | "match" | "shield";
+  icon: "team" | "pencil" | "shield" | "psychotherapy";
+  /* Where the title/body sit; the icon takes the opposite corner. */
+  contentPosition: "top" | "bottom";
+  /* White card's icon gets a dark badge instead of a bleeding watermark. */
+  darkBadge?: boolean;
 };
 
 const features: Feature[] = [
+  {
+    title: "Tested, not just trusted",
+    body: "Real skills checked against real tasks before anyone reaches your inbox.",
+    bg: "#c8f0d9",
+    icon: "team",
+    contentPosition: "top",
+  },
   {
     title: "We taught them ourselves",
     body: "Not pulled off a job board, trained by Talent Factory to a standard we can promise.",
     bg: "#ffd9c0",
     icon: "pencil",
-  },
-  {
-    title: "Tested, not just trusted",
-    body: "Real skills checked against real tasks before anyone reaches your inbox.",
-    bg: "#c8f0d9",
-    icon: "people",
-  },
-  {
-    title: "If it doesn't click, we re-match",
-    body: "An early mismatch isn't your problem to fix. We replace them, no fuss.",
-    bg: "#ffffff",
-    icon: "match",
+    contentPosition: "bottom",
   },
   {
     title: "The admin is on us",
     body: "Contracts, onboarding, payment, handled, so you just get the work.",
     bg: "#c0d5ff",
     icon: "shield",
+    contentPosition: "top",
+  },
+  {
+    title: "If it doesn't click, we re-match",
+    body: "An early mismatch isn't your problem to fix. We replace them, no fuss.",
+    bg: "#ffffff",
+    icon: "psychotherapy",
+    contentPosition: "bottom",
+    darkBadge: true,
   },
 ];
 
-function PencilIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-7" fill="#171717">
-      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25ZM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z" />
-    </svg>
-  );
-}
-
-function PeopleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-7" fill="#171717">
-      <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3ZM8 11c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5Z" />
-    </svg>
-  );
-}
-
-function MatchIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-7" fill="none">
-      <path
-        d="M9 20a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9v1Z"
-        fill="#171717"
-      />
-      <path
-        d="M12 2a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2Z"
-        fill="#171717"
-      />
-      <path d="M12 6v4M10 8h4" stroke="#ffd9c0" strokeWidth="1.6" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function ShieldIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-7" fill="#171717">
-      <path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4Z" />
-      <path
-        d="m12 7 1.05 2.13 2.35.34-1.7 1.66.4 2.34L12 12.4l-2.1 1.07.4-2.34-1.7-1.66 2.35-.34L12 7Z"
-        fill="#c0d5ff"
-      />
-    </svg>
-  );
-}
-
-const icons = { pencil: PencilIcon, people: PeopleIcon, match: MatchIcon, shield: ShieldIcon };
+const iconSrc: Record<Feature["icon"], string> = {
+  team: "/icons/team-fill.svg",
+  pencil: "/icons/pencil-fill.svg",
+  shield: "/icons/shield-star-fill.svg",
+  psychotherapy: "/icons/psychotherapy-fill.svg",
+};
 
 function FeatureCard({ feature }: { feature: Feature }) {
-  const Icon = icons[feature.icon];
+  const iconOnTop = feature.contentPosition === "bottom";
+
   return (
     <motion.div
       style={{ backgroundColor: feature.bg }}
       whileHover={{ y: -4 }}
       transition={{ type: "spring", stiffness: 300, damping: 22 }}
-      className="flex h-[300px] w-[260px] shrink-0 snap-start flex-col rounded-2xl p-7 md:h-[320px] md:w-full"
+      className="relative flex h-[300px] w-[260px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl p-7 md:h-[320px] md:w-full"
     >
-      <Icon />
-      <div className="mt-auto flex flex-col gap-2.5 pt-6">
+      {feature.darkBadge ? (
+        <div className="absolute right-6 top-6 flex size-[72px] items-center justify-center rounded-2xl bg-[#232323]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={iconSrc[feature.icon]}
+            alt=""
+            aria-hidden
+            className="size-11"
+          />
+        </div>
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={iconSrc[feature.icon]}
+          alt=""
+          aria-hidden
+          className={`pointer-events-none absolute -right-8 size-[170px] ${
+            iconOnTop ? "-top-8" : "-bottom-8"
+          }`}
+        />
+      )}
+
+      <div
+        className={`relative flex h-full flex-col gap-2.5 ${
+          feature.contentPosition === "bottom" ? "mt-auto" : ""
+        }`}
+      >
         <h3
-          className="text-lg font-semibold leading-tight tracking-[-0.3px] text-black"
+          className="max-w-[75%] text-lg font-semibold leading-tight tracking-[-0.3px] text-black"
           style={{ fontFamily: "var(--font-bricolage)" }}
         >
           {feature.title}
         </h3>
-        <p className="text-[14px] leading-[21px] text-[#4a4a4a]">
+        <p className="max-w-[80%] text-[14px] leading-[21px] text-[#4a4a4a]">
           {feature.body}
         </p>
       </div>

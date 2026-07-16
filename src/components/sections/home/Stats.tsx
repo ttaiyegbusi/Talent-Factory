@@ -16,7 +16,7 @@ const stats: Stat[] = [
 
 export default function Stats() {
   return (
-    <section className="bg-[#fffaeb] pb-28">
+    <section className="bg-[#f2f2f2] py-24">
       <div className="mx-auto max-w-6xl px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
