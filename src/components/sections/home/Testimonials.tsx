@@ -1,7 +1,27 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import {
+  motion,
+  useScroll,
+  useSpring,
+  useTransform,
+  type MotionValue,
+} from "framer-motion";
 import Button from "@/components/ui/Button";
+
+/*
+ * Scroll-linked stack → scatter, same mechanic as HiringModes: cards start
+ * piled near the canvas center (front card — highest z — roughly centered,
+ * the rest fanned out a few degrees behind it) and settle into their
+ * authored scattered position as the section scrolls into view. Each
+ * card's stack offset is just "canvas center minus its own final center",
+ * so at progress 0 every card's center lands on the same point.
+ */
+const CANVAS_W = 740;
+const CANVAS_H = 560;
+const CANVAS_CX = CANVAS_W / 2;
+const CANVAS_CY = CANVAS_H / 2;
 
 type Testimonial = {
   name: string;
@@ -17,6 +37,8 @@ type Testimonial = {
   width: number;
   height: number;
   z: number;
+  /* Rotation (deg) while stacked; settles to 0 as it scatters. */
+  stackRotate: number;
 };
 
 const testimonials: Testimonial[] = [
@@ -33,6 +55,7 @@ const testimonials: Testimonial[] = [
     width: 270,
     height: 305,
     z: 10,
+    stackRotate: -8,
   },
   {
     name: "Kevin",
@@ -47,6 +70,7 @@ const testimonials: Testimonial[] = [
     width: 270,
     height: 288,
     z: 20,
+    stackRotate: 5,
   },
   {
     name: "Jason F.",
@@ -61,6 +85,7 @@ const testimonials: Testimonial[] = [
     width: 245,
     height: 270,
     z: 15,
+    stackRotate: -4,
   },
   {
     name: "Christy",
@@ -75,6 +100,7 @@ const testimonials: Testimonial[] = [
     width: 260,
     height: 270,
     z: 25,
+    stackRotate: 3,
   },
   {
     name: "Jen S.",
@@ -89,6 +115,7 @@ const testimonials: Testimonial[] = [
     width: 260,
     height: 306,
     z: 30,
+    stackRotate: 7,
   },
 ];
 
@@ -115,13 +142,12 @@ function TestimonialCard({ t }: { t: Testimonial }) {
       style={{
         backgroundColor: t.bg,
         color: t.text,
-        zIndex: t.z,
         width: t.width,
         height: t.height,
       }}
-      whileHover={{ y: -6, scale: 1.015 }}
+      whileHover={{ scale: 1.02 }}
       transition={{ type: "spring", stiffness: 300, damping: 22 }}
-      className="relative overflow-hidden rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.08)]"
+      className="relative overflow-hidden rounded-2xl p-6"
     >
       <StarRow light={t.text === "#ffffff"} />
       <h3
@@ -154,7 +180,56 @@ function TestimonialCard({ t }: { t: Testimonial }) {
   );
 }
 
+function StackedCard({
+  t,
+  progress,
+}: {
+  t: Testimonial;
+  progress: MotionValue<number>;
+}) {
+  const centerX = t.left + t.width / 2;
+  const centerY = t.top + t.height / 2;
+  const stackDx = CANVAS_CX - centerX;
+  const stackDy = CANVAS_CY - centerY;
+
+  const x = useTransform(progress, (v) => (1 - v) * stackDx);
+  const y = useTransform(progress, (v) => (1 - v) * stackDy);
+  const rotate = useTransform(progress, (v) => (1 - v) * t.stackRotate);
+  const boxShadow = useTransform(
+    progress,
+    [0, 1],
+    ["0 30px 50px rgba(0,0,0,0.22)", "0 20px 40px rgba(0,0,0,0.08)"]
+  );
+
+  return (
+    <motion.div
+      className="absolute"
+      style={{ top: t.top, left: t.left, x, y, rotate, zIndex: t.z, boxShadow }}
+    >
+      <TestimonialCard t={t} />
+    </motion.div>
+  );
+}
+
 export default function Testimonials() {
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+  /* 0 = stacked → 1 = scattered. Unlike HiringModes' row (which is only as
+   * tall as its cards), this canvas is a tall 560px box whose scattered
+   * cards span top-to-bottom but whose *stacked* cluster sits at its
+   * vertical center — so the trigger tracks the canvas's center crossing
+   * the viewport, not its top edge, otherwise the stack is already mostly
+   * expanded by the time it scrolls into view. */
+  const { scrollYProgress } = useScroll({
+    target: canvasRef,
+    offset: ["center 0.9", "center 0.35"],
+  });
+  const progress = useSpring(scrollYProgress, {
+    stiffness: 70,
+    damping: 18,
+    mass: 1,
+  });
+
   return (
     <section className="bg-white py-28">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-6 xl:flex-row xl:items-center xl:gap-6">
@@ -221,15 +296,12 @@ export default function Testimonials() {
           ))}
         </motion.div>
 
-        <div className="relative hidden h-[560px] w-[740px] shrink-0 xl:block">
+        <div
+          ref={canvasRef}
+          className="relative hidden h-[560px] w-[740px] shrink-0 xl:block"
+        >
           {testimonials.map((t) => (
-            <div
-              key={t.name}
-              className="absolute"
-              style={{ top: t.top, left: t.left }}
-            >
-              <TestimonialCard t={t} />
-            </div>
+            <StackedCard key={t.name} t={t} progress={progress} />
           ))}
         </div>
       </div>
