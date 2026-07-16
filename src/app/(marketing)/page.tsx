@@ -4,6 +4,7 @@ import LogoMarquee from "@/components/sections/home/LogoMarquee";
 import TrustFeatures from "@/components/sections/home/TrustFeatures";
 import Stats from "@/components/sections/home/Stats";
 import Testimonials from "@/components/sections/home/Testimonials";
+import HowItWorks from "@/components/sections/home/HowItWorks";
 
 export default function HomePage() {
   return (
@@ -14,6 +15,7 @@ export default function HomePage() {
       <TrustFeatures />
       <Stats />
       <Testimonials />
+      <HowItWorks />
     </>
   );
 }

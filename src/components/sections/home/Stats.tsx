@@ -1,58 +1,91 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import {
-  animate,
-  motion,
-  useInView,
-  useMotionValue,
-  useTransform,
-} from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, useInView } from "framer-motion";
 
 type Stat = {
-  /* Numeric target counts up from 0; `null` renders `suffix` as-is. */
-  target: number | null;
-  suffix: string;
+  value: string;
   body: string;
 };
 
 const stats: Stat[] = [
-  { target: 9, suffix: "", body: "Talent categories, from assistants to accountants" },
-  { target: 100, suffix: "%", body: "Trained & certified by us before you meet them" },
-  { target: 500, suffix: "+", body: "Operators ready to start in the pool" },
-  { target: null, suffix: "Days", body: "From your brief to people worth interviewing" },
+  { value: "9", body: "Talent categories, from assistants to accountants" },
+  { value: "100%", body: "Trained & certified by us before you meet them" },
+  { value: "500+", body: "Operators ready to start in the pool" },
+  { value: "Days", body: "From your brief to people worth interviewing" },
 ];
 
-function CountUp({
+const DIGITS = "0123456789";
+const UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const LOWER = "abcdefghijklmnopqrstuvwxyz";
+const SYMBOLS = "#%&@+*";
+
+function randomFor(ch: string) {
+  const set = DIGITS.includes(ch)
+    ? DIGITS
+    : UPPER.includes(ch)
+      ? UPPER
+      : LOWER.includes(ch)
+        ? LOWER
+        : SYMBOLS.includes(ch)
+          ? SYMBOLS
+          : null;
+  return set ? set[Math.floor(Math.random() * set.length)] : ch;
+}
+
+/*
+ * Glitch/scramble reveal: every character flickers through random
+ * characters of its own kind (digit -> digits, letter -> letters,
+ * symbol -> symbols) and locks into its final form left-to-right.
+ * Rendered in the mono font, so the flicker never shifts layout.
+ */
+function GlitchText({
   target,
-  suffix,
   play,
   delay,
 }: {
-  target: number;
-  suffix: string;
+  target: string;
   play: boolean;
   delay: number;
 }) {
-  const count = useMotionValue(0);
-  const rounded = useTransform(count, (v) => Math.round(v).toString());
+  const [display, setDisplay] = useState(target);
 
   useEffect(() => {
     if (!play) return;
-    const controls = animate(count, target, {
-      duration: 1.6,
-      delay,
-      ease: [0.16, 1, 0.3, 1],
-    });
-    return () => controls.stop();
-  }, [play, target, delay, count]);
+    const duration = 1100;
+    const flickerEvery = 45;
+    const start = performance.now() + delay * 1000;
+    let last = 0;
+    let raf: number;
 
-  return (
-    <>
-      <motion.span>{rounded}</motion.span>
-      {suffix}
-    </>
-  );
+    const loop = (now: number) => {
+      const t = now - start;
+      if (t < 0) {
+        raf = requestAnimationFrame(loop);
+        return;
+      }
+      if (t >= duration) {
+        setDisplay(target);
+        return;
+      }
+      if (now - last >= flickerEvery) {
+        last = now;
+        setDisplay(
+          [...target]
+            .map((ch, i) => {
+              const lockAt = duration * ((i + 1) / target.length);
+              return t >= lockAt ? ch : randomFor(ch);
+            })
+            .join("")
+        );
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [play, target, delay]);
+
+  return <span>{display}</span>;
 }
 
 export default function Stats() {
@@ -83,7 +116,7 @@ export default function Stats() {
         <div ref={gridRef} className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-4">
           {stats.map((stat, i) => (
             <motion.div
-              key={stat.suffix + stat.body}
+              key={stat.value}
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : undefined}
               transition={{ duration: 0.5, delay: i * 0.08, ease: "easeOut" }}
@@ -93,16 +126,7 @@ export default function Stats() {
                 className="text-[40px] leading-none tracking-[-1px] text-black md:text-[48px]"
                 style={{ fontFamily: "var(--font-geist-mono)" }}
               >
-                {stat.target === null ? (
-                  stat.suffix
-                ) : (
-                  <CountUp
-                    target={stat.target}
-                    suffix={stat.suffix}
-                    play={isInView}
-                    delay={i * 0.08}
-                  />
-                )}
+                <GlitchText target={stat.value} play={isInView} delay={i * 0.12} />
               </span>
               <p className="text-[14px] leading-[21px] text-[#4a4a4a]">
                 {stat.body}
