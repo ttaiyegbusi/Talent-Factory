@@ -1,17 +1,17 @@
 "use client";
 
 import { useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 
 type Feature = {
   title: string;
   body: string;
   bg: string;
-  icon: "team" | "pencil" | "shield" | "psychotherapy";
+  icon: string;
+  /* Tailwind position/size classes for the watermark icon. */
+  iconClass: string;
   /* Where the title/body sit; the icon takes the opposite corner. */
   contentPosition: "top" | "bottom";
-  /* White card's icon gets a dark badge instead of a bleeding watermark. */
-  darkBadge?: boolean;
 };
 
 const features: Feature[] = [
@@ -19,84 +19,90 @@ const features: Feature[] = [
     title: "Tested, not just trusted",
     body: "Real skills checked against real tasks before anyone reaches your inbox.",
     bg: "#c8f0d9",
-    icon: "team",
+    icon: "/icons/team-fill.svg",
+    iconClass: "right-6 -bottom-2 h-[135px]",
     contentPosition: "top",
   },
   {
     title: "We taught them ourselves",
     body: "Not pulled off a job board, trained by Talent Factory to a standard we can promise.",
     bg: "#ffd9c0",
-    icon: "pencil",
+    icon: "/icons/pencil-fill.svg",
+    iconClass: "right-6 top-6 h-[112px]",
     contentPosition: "bottom",
   },
   {
     title: "The admin is on us",
     body: "Contracts, onboarding, payment, handled, so you just get the work.",
     bg: "#c0d5ff",
-    icon: "shield",
+    icon: "/icons/shield-star-fill.svg",
+    iconClass: "right-6 -bottom-2 h-[140px]",
     contentPosition: "top",
   },
   {
     title: "If it doesn't click, we re-match",
     body: "An early mismatch isn't your problem to fix. We replace them, no fuss.",
     bg: "#ffffff",
-    icon: "psychotherapy",
+    icon: "/icons/psychotherapy-fill.svg",
+    iconClass: "right-4 top-5 h-[125px]",
     contentPosition: "bottom",
-    darkBadge: true,
   },
 ];
 
-const iconSrc: Record<Feature["icon"], string> = {
-  team: "/icons/team-fill.svg",
-  pencil: "/icons/pencil-fill.svg",
-  shield: "/icons/shield-star-fill.svg",
-  psychotherapy: "/icons/psychotherapy-fill.svg",
-};
+/*
+ * Entrance: cards are invisible until the row scrolls into view, then they
+ * ride in from the right edge and settle leftward into their slots. Each
+ * card starts bunched just past the right end of the row — offset is in %
+ * of the card's own width (card + gap ≈ 108%) so the same numbers work for
+ * the mobile carousel and the desktop grid. The leftmost card travels
+ * farthest and leads, so the row visibly fills right-to-left.
+ */
+const enterOffset = (i: number) => `${(features.length - i) * 108}%`;
 
-function FeatureCard({ feature }: { feature: Feature }) {
-  const iconOnTop = feature.contentPosition === "bottom";
-
+function FeatureCard({
+  feature,
+  index,
+  isInView,
+}: {
+  feature: Feature;
+  index: number;
+  isInView: boolean;
+}) {
   return (
     <motion.div
       style={{ backgroundColor: feature.bg }}
+      initial={{ x: enterOffset(index), opacity: 0 }}
+      animate={isInView ? { x: "0%", opacity: 1 } : undefined}
       whileHover={{ y: -4 }}
-      transition={{ type: "spring", stiffness: 300, damping: 22 }}
+      transition={{
+        duration: 0.9,
+        delay: index * 0.12,
+        ease: [0.22, 1, 0.36, 1],
+        opacity: { duration: 0.35, delay: index * 0.12 },
+        y: { type: "spring", stiffness: 300, damping: 22 },
+      }}
       className="relative flex h-[300px] w-[260px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl p-7 md:h-[320px] md:w-full"
     >
-      {feature.darkBadge ? (
-        <div className="absolute right-6 top-6 flex size-[72px] items-center justify-center rounded-2xl bg-[#232323]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={iconSrc[feature.icon]}
-            alt=""
-            aria-hidden
-            className="size-11"
-          />
-        </div>
-      ) : (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={iconSrc[feature.icon]}
-          alt=""
-          aria-hidden
-          className={`pointer-events-none absolute -right-8 size-[170px] ${
-            iconOnTop ? "-top-8" : "-bottom-8"
-          }`}
-        />
-      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={feature.icon}
+        alt=""
+        aria-hidden
+        className={`pointer-events-none absolute w-auto ${feature.iconClass}`}
+      />
 
       <div
-        className={`relative flex h-full flex-col gap-2.5 ${
+        className={`relative flex flex-col gap-2.5 ${
           feature.contentPosition === "bottom" ? "mt-auto" : ""
         }`}
       >
         <h3
-          className="max-w-[75%] text-lg font-semibold leading-tight tracking-[-0.3px] text-black"
+          className="text-lg font-semibold leading-tight tracking-[-0.3px] text-black"
           style={{ fontFamily: "var(--font-bricolage)" }}
         >
           {feature.title}
         </h3>
-        <p className="max-w-[80%] text-[14px] leading-[21px] text-[#4a4a4a]">
+        <p className="text-[14px] leading-[21px] text-[#4a4a4a]">
           {feature.body}
         </p>
       </div>
@@ -132,6 +138,8 @@ function ArrowButton({
 
 export default function TrustFeatures() {
   const rowRef = useRef<HTMLDivElement>(null);
+  /* Cards stay hidden until the row is well into view, then slide in. */
+  const isInView = useInView(rowRef, { once: true, amount: 0.35 });
 
   const scroll = (dir: "left" | "right") => {
     rowRef.current?.scrollBy({
@@ -141,7 +149,7 @@ export default function TrustFeatures() {
   };
 
   return (
-    <section className="bg-[#fffaeb] py-24">
+    <section className="overflow-hidden bg-[#fffaeb] py-24">
       <div className="mx-auto max-w-6xl px-6">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <motion.h2
@@ -180,8 +188,13 @@ export default function TrustFeatures() {
           ref={rowRef}
           className="mt-12 flex gap-5 overflow-x-auto pb-2 [scrollbar-width:none] md:grid md:grid-cols-4 md:overflow-visible [&::-webkit-scrollbar]:hidden"
         >
-          {features.map((feature) => (
-            <FeatureCard key={feature.title} feature={feature} />
+          {features.map((feature, i) => (
+            <FeatureCard
+              key={feature.title}
+              feature={feature}
+              index={i}
+              isInView={isInView}
+            />
           ))}
         </div>
       </div>
