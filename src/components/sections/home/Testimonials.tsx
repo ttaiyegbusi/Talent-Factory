@@ -138,6 +138,35 @@ function StarRow({ light }: { light?: boolean }) {
   );
 }
 
+/* Shared, non-motion card body reused by both the tablet list and the
+ * mobile sticky stack — neither needs the desktop canvas's fixed sizing,
+ * hover scale, or line-clamped body text. */
+function TestimonialCardBody({ t }: { t: Testimonial }) {
+  return (
+    <div
+      style={{ backgroundColor: t.bg, color: t.text }}
+      className="relative overflow-hidden rounded-2xl p-6"
+    >
+      <StarRow light={t.text === "#ffffff"} />
+      <h3
+        className="mt-3 text-xl font-semibold leading-snug tracking-[-0.4px]"
+        style={{ fontFamily: "var(--font-bricolage)" }}
+      >
+        {t.title}
+      </h3>
+      <p className="mt-2.5 text-[14px] leading-[21px] opacity-80">{t.body}</p>
+      <div className="mt-4">
+        <span
+          className="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium"
+          style={{ backgroundColor: t.chipBg, color: t.chipText }}
+        >
+          {t.name}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function TestimonialCard({ t }: { t: Testimonial }) {
   return (
     <motion.div
@@ -236,32 +265,23 @@ export default function Testimonials() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-          className="flex flex-col gap-5 xl:hidden"
+          className="hidden gap-5 md:flex md:flex-col xl:hidden"
         >
           {testimonials.map((t) => (
-            <div
-              key={t.name}
-              style={{ backgroundColor: t.bg, color: t.text }}
-              className="relative overflow-hidden rounded-2xl p-6"
-            >
-              <StarRow light={t.text === "#ffffff"} />
-              <h3
-                className="mt-3 text-xl font-semibold leading-snug tracking-[-0.4px]"
-                style={{ fontFamily: "var(--font-bricolage)" }}
-              >
-                {t.title}
-              </h3>
-              <p className="mt-2.5 text-[14px] leading-[21px] opacity-80">
-                {t.body}
-              </p>
-              <div className="mt-4">
-                <span
-                  className="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium"
-                  style={{ backgroundColor: t.chipBg, color: t.chipText }}
-                >
-                  {t.name}
-                </span>
-              </div>
+            <TestimonialCardBody key={t.name} t={t} />
+          ))}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+          className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden"
+        >
+          {testimonials.map((t) => (
+            <div key={t.name} className="w-[280px] shrink-0 snap-center">
+              <TestimonialCardBody t={t} />
             </div>
           ))}
         </motion.div>

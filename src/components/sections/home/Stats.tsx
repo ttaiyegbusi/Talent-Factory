@@ -111,6 +111,28 @@ function GlitchText({
  */
 const enterOffset = (i: number) => `${(stats.length - i) * 108}%`;
 
+function StatCardContent({
+  stat,
+  play,
+  delay,
+}: {
+  stat: Stat;
+  play: boolean;
+  delay: number;
+}) {
+  return (
+    <div className="flex w-full flex-col gap-3 rounded-2xl bg-white p-7">
+      <span
+        className="text-[40px] leading-none tracking-[-1px] text-black md:text-[48px]"
+        style={{ fontFamily: "var(--font-geist-mono)" }}
+      >
+        <GlitchText target={stat.value} play={play} delay={delay} />
+      </span>
+      <p className="text-[14px] leading-[21px] text-[#4a4a4a]">{stat.body}</p>
+    </div>
+  );
+}
+
 export default function Stats() {
   const gridRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(gridRef, { once: true, amount: 0.4 });
@@ -136,31 +158,42 @@ export default function Stats() {
           </h2>
         </motion.div>
 
-        <div ref={gridRef} className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-4">
-          {stats.map((stat, i) => (
-            <motion.div
-              key={stat.value}
-              initial={{ x: enterOffset(i), opacity: 0 }}
-              animate={isInView ? { x: "0%", opacity: 1 } : undefined}
-              transition={{
-                duration: 0.9,
-                delay: i * 0.12,
-                ease: [0.22, 1, 0.36, 1],
-                opacity: { duration: 0.35, delay: i * 0.12 },
-              }}
-              className="flex flex-col gap-3 rounded-2xl bg-white p-7"
-            >
-              <span
-                className="text-[40px] leading-none tracking-[-1px] text-black md:text-[48px]"
-                style={{ fontFamily: "var(--font-geist-mono)" }}
+        <div ref={gridRef}>
+          <div className="mt-12 hidden md:grid md:grid-cols-4 md:gap-4">
+            {stats.map((stat, i) => (
+              <motion.div
+                key={stat.value}
+                initial={{ x: enterOffset(i), opacity: 0 }}
+                animate={isInView ? { x: "0%", opacity: 1 } : undefined}
+                transition={{
+                  duration: 0.9,
+                  delay: i * 0.12,
+                  ease: [0.22, 1, 0.36, 1],
+                  opacity: { duration: 0.35, delay: i * 0.12 },
+                }}
               >
-                <GlitchText target={stat.value} play={isInView} delay={i * 0.12} />
-              </span>
-              <p className="text-[14px] leading-[21px] text-[#4a4a4a]">
-                {stat.body}
-              </p>
-            </motion.div>
-          ))}
+                <StatCardContent stat={stat} play={isInView} delay={i * 0.12} />
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="mt-12 grid grid-cols-2 gap-4 md:hidden">
+            {stats.map((stat, i) => (
+              <motion.div
+                key={stat.value}
+                initial={{ opacity: 0, scale: 0.85, y: 16 }}
+                animate={isInView ? { opacity: 1, scale: 1, y: 0 } : undefined}
+                transition={{
+                  type: "spring",
+                  stiffness: 260,
+                  damping: 20,
+                  delay: i * 0.1,
+                }}
+              >
+                <StatCardContent stat={stat} play={isInView} delay={i * 0.12} />
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

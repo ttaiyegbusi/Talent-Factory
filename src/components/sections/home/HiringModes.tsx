@@ -9,6 +9,7 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import MobileStack from "@/components/ui/MobileStack";
 
 /*
  * Scroll-linked deck: the three cards sit stacked near the row's center
@@ -153,7 +154,7 @@ function ModeCard({
           transition: { duration: 0.55, ease: "easeInOut" },
         },
       }}
-      className="relative h-[398px] w-full max-w-[332px] cursor-pointer rounded-[16px] md:min-w-0 md:flex-1"
+      className="relative mx-auto h-[398px] w-full max-w-[332px] cursor-pointer rounded-[16px] md:min-w-0 md:flex-1"
     >
       <Decor />
       <div
@@ -215,7 +216,7 @@ export default function HiringModes() {
 
         <div
           ref={rowRef}
-          className="mt-16 flex flex-col items-center gap-[18px] md:flex-row md:justify-center"
+          className="mt-16 hidden md:flex md:flex-row md:justify-center md:gap-[18px]"
         >
           {cards.map((card) => (
             <ModeCard
@@ -226,6 +227,17 @@ export default function HiringModes() {
             />
           ))}
         </div>
+
+        <MobileStack className="mt-16 mb-10 md:hidden" peek={30} baseTop={20}>
+          {cards.map((card) => (
+            <ModeCard
+              key={card.title}
+              card={card}
+              progress={progress}
+              animated={false}
+            />
+          ))}
+        </MobileStack>
       </div>
     </section>
   );

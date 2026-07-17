@@ -59,29 +59,11 @@ const features: Feature[] = [
  */
 const enterOffset = (i: number) => `${(features.length - i) * 108}%`;
 
-function FeatureCard({
-  feature,
-  index,
-  isInView,
-}: {
-  feature: Feature;
-  index: number;
-  isInView: boolean;
-}) {
+function FeatureCardContent({ feature }: { feature: Feature }) {
   return (
-    <motion.div
+    <div
       style={{ backgroundColor: feature.bg }}
-      initial={{ x: enterOffset(index), opacity: 0 }}
-      animate={isInView ? { x: "0%", opacity: 1 } : undefined}
-      whileHover={{ y: -4 }}
-      transition={{
-        duration: 0.9,
-        delay: index * 0.12,
-        ease: [0.22, 1, 0.36, 1],
-        opacity: { duration: 0.35, delay: index * 0.12 },
-        y: { type: "spring", stiffness: 300, damping: 22 },
-      }}
-      className="relative flex h-[300px] w-[260px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl p-7 md:h-[320px] md:w-full"
+      className="relative flex h-[300px] w-full flex-col overflow-hidden rounded-2xl p-7 md:h-[320px]"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -106,33 +88,34 @@ function FeatureCard({
           {feature.body}
         </p>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
-function ArrowButton({
-  direction,
-  onClick,
+function FeatureCard({
+  feature,
+  index,
+  isInView,
 }: {
-  direction: "left" | "right";
-  onClick: () => void;
+  feature: Feature;
+  index: number;
+  isInView: boolean;
 }) {
   return (
-    <button
-      onClick={onClick}
-      aria-label={direction === "left" ? "Scroll left" : "Scroll right"}
-      className="flex size-9 items-center justify-center rounded-full bg-white text-black transition-opacity hover:opacity-80"
+    <motion.div
+      initial={{ x: enterOffset(index), opacity: 0 }}
+      animate={isInView ? { x: "0%", opacity: 1 } : undefined}
+      whileHover={{ y: -4 }}
+      transition={{
+        duration: 0.9,
+        delay: index * 0.12,
+        ease: [0.22, 1, 0.36, 1],
+        opacity: { duration: 0.35, delay: index * 0.12 },
+        y: { type: "spring", stiffness: 300, damping: 22 },
+      }}
     >
-      <svg viewBox="0 0 24 24" className="size-4" fill="none">
-        <path
-          d={direction === "left" ? "M15 18l-6-6 6-6" : "M9 6l6 6-6 6"}
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </button>
+      <FeatureCardContent feature={feature} />
+    </motion.div>
   );
 }
 
@@ -140,13 +123,6 @@ export default function TrustFeatures() {
   const rowRef = useRef<HTMLDivElement>(null);
   /* Cards stay hidden until the row is well into view, then slide in. */
   const isInView = useInView(rowRef, { once: true, amount: 0.35 });
-
-  const scroll = (dir: "left" | "right") => {
-    rowRef.current?.scrollBy({
-      left: dir === "left" ? -280 : 280,
-      behavior: "smooth",
-    });
-  };
 
   return (
     <section className="overflow-hidden bg-[#fffaeb] py-24">
@@ -177,25 +153,31 @@ export default function TrustFeatures() {
               hand you someone we taught, tested, and would stake our name
               on.
             </p>
-            <div className="flex gap-2">
-              <ArrowButton direction="left" onClick={() => scroll("left")} />
-              <ArrowButton direction="right" onClick={() => scroll("right")} />
-            </div>
           </motion.div>
         </div>
 
-        <div
-          ref={rowRef}
-          className="mt-12 flex gap-5 overflow-x-auto pb-2 [scrollbar-width:none] md:grid md:grid-cols-4 md:overflow-visible [&::-webkit-scrollbar]:hidden"
-        >
-          {features.map((feature, i) => (
-            <FeatureCard
-              key={feature.title}
-              feature={feature}
-              index={i}
-              isInView={isInView}
-            />
-          ))}
+        <div ref={rowRef}>
+          <div className="mt-12 hidden md:grid md:grid-cols-4 md:gap-5">
+            {features.map((feature, i) => (
+              <FeatureCard
+                key={feature.title}
+                feature={feature}
+                index={i}
+                isInView={isInView}
+              />
+            ))}
+          </div>
+
+          <div className="mt-12 flex flex-col gap-5 md:hidden">
+            {features.map((feature, i) => (
+              <FeatureCard
+                key={feature.title}
+                feature={feature}
+                index={i}
+                isInView={isInView}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
