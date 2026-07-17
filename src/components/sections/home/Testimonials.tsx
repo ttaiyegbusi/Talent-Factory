@@ -145,7 +145,7 @@ function TestimonialCardBody({ t }: { t: Testimonial }) {
   return (
     <div
       style={{ backgroundColor: t.bg, color: t.text }}
-      className="relative overflow-hidden rounded-2xl p-6"
+      className="relative flex h-full flex-col overflow-hidden rounded-2xl p-6"
     >
       <StarRow light={t.text === "#ffffff"} />
       <h3
@@ -154,8 +154,10 @@ function TestimonialCardBody({ t }: { t: Testimonial }) {
       >
         {t.title}
       </h3>
-      <p className="mt-2.5 text-[14px] leading-[21px] opacity-80">{t.body}</p>
-      <div className="mt-4">
+      <p className="mt-2.5 line-clamp-3 text-[14px] leading-[21px] opacity-80">
+        {t.body}
+      </p>
+      <div className="mt-auto pt-4">
         <span
           className="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium"
           style={{ backgroundColor: t.chipBg, color: t.chipText }}
@@ -280,7 +282,10 @@ export default function Testimonials() {
           className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden"
         >
           {testimonials.map((t) => (
-            <div key={t.name} className="w-[280px] shrink-0 snap-center">
+            <div
+              key={t.name}
+              className="h-[280px] w-[280px] shrink-0 snap-center"
+            >
               <TestimonialCardBody t={t} />
             </div>
           ))}

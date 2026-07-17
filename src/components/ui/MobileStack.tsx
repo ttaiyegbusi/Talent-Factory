@@ -30,7 +30,7 @@ export default function MobileStack({
       {Children.map(children, (child, i) => (
         <div
           key={i}
-          className="sticky rounded-2xl shadow-[0_-10px_28px_-10px_rgba(0,0,0,0.18)]"
+          className="sticky rounded-2xl"
           style={{ top: baseTop + i * peek, zIndex: i + 1 }}
         >
           {child}

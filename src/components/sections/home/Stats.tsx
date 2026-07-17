@@ -121,7 +121,7 @@ function StatCardContent({
   delay: number;
 }) {
   return (
-    <div className="flex w-full flex-col gap-3 rounded-2xl bg-white p-7">
+    <div className="flex h-full min-h-[160px] w-full flex-col gap-3 rounded-2xl bg-white p-7">
       <span
         className="text-[40px] leading-none tracking-[-1px] text-black md:text-[48px]"
         style={{ fontFamily: "var(--font-geist-mono)" }}
@@ -177,7 +177,7 @@ export default function Stats() {
             ))}
           </div>
 
-          <div className="mt-12 grid grid-cols-2 gap-4 md:hidden">
+          <div className="mt-12 grid grid-cols-1 gap-4 md:hidden">
             {stats.map((stat, i) => (
               <motion.div
                 key={stat.value}
