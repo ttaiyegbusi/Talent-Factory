@@ -3,8 +3,9 @@ import HiringModes from "@/components/sections/home/HiringModes";
 import LogoMarquee from "@/components/sections/home/LogoMarquee";
 import TrustFeatures from "@/components/sections/home/TrustFeatures";
 import Stats from "@/components/sections/home/Stats";
-import Testimonials from "@/components/sections/home/Testimonials";
 import HowItWorks from "@/components/sections/home/HowItWorks";
+import Testimonials from "@/components/sections/home/Testimonials";
+import CTABanner from "@/components/sections/home/CTABanner";
 
 export default function HomePage() {
   return (
@@ -14,8 +15,9 @@ export default function HomePage() {
       <LogoMarquee />
       <TrustFeatures />
       <Stats />
-      <Testimonials />
       <HowItWorks />
+      <Testimonials />
+      <CTABanner />
     </>
   );
 }

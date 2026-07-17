@@ -38,6 +38,8 @@ function randomFor(ch: string) {
  * characters of its own kind (digit -> digits, letter -> letters,
  * symbol -> symbols) and locks into its final form left-to-right.
  * Rendered in the mono font, so the flicker never shifts layout.
+ * Once triggered, it keeps re-scrambling on a loop (scramble, hold,
+ * scramble again) for as long as the component is mounted.
  */
 function GlitchText({
   target,
@@ -54,46 +56,67 @@ function GlitchText({
     if (!play) return;
     const duration = 1100;
     const flickerEvery = 45;
-    const start = performance.now() + delay * 1000;
-    let last = 0;
-    let raf: number;
+    const holdBetweenCycles = 3200;
+    let cancelled = false;
+    let raf = 0;
+    let timeout: ReturnType<typeof setTimeout>;
 
-    const loop = (now: number) => {
-      const t = now - start;
-      if (t < 0) {
+    const runCycle = (startDelay: number) => {
+      const start = performance.now() + startDelay;
+      let last = 0;
+
+      const loop = (now: number) => {
+        if (cancelled) return;
+        const t = now - start;
+        if (t < 0) {
+          raf = requestAnimationFrame(loop);
+          return;
+        }
+        if (t >= duration) {
+          setDisplay(target);
+          timeout = setTimeout(() => runCycle(0), holdBetweenCycles);
+          return;
+        }
+        if (now - last >= flickerEvery) {
+          last = now;
+          setDisplay(
+            [...target]
+              .map((ch, i) => {
+                const lockAt = duration * ((i + 1) / target.length);
+                return t >= lockAt ? ch : randomFor(ch);
+              })
+              .join("")
+          );
+        }
         raf = requestAnimationFrame(loop);
-        return;
-      }
-      if (t >= duration) {
-        setDisplay(target);
-        return;
-      }
-      if (now - last >= flickerEvery) {
-        last = now;
-        setDisplay(
-          [...target]
-            .map((ch, i) => {
-              const lockAt = duration * ((i + 1) / target.length);
-              return t >= lockAt ? ch : randomFor(ch);
-            })
-            .join("")
-        );
-      }
+      };
       raf = requestAnimationFrame(loop);
     };
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
+
+    runCycle(delay * 1000);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+      clearTimeout(timeout);
+    };
   }, [play, target, delay]);
 
   return <span>{display}</span>;
 }
+
+/*
+ * Same right-to-left fill treatment as TrustFeatures: cards start bunched
+ * past the right edge (offset in % of card width) and settle into place,
+ * leftmost card traveling farthest so it leads the motion.
+ */
+const enterOffset = (i: number) => `${(stats.length - i) * 108}%`;
 
 export default function Stats() {
   const gridRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(gridRef, { once: true, amount: 0.4 });
 
   return (
-    <section className="bg-[#f2f2f2] py-24">
+    <section className="overflow-hidden bg-[#f2f2f2] py-24">
       <div className="mx-auto max-w-6xl px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -117,9 +140,14 @@ export default function Stats() {
           {stats.map((stat, i) => (
             <motion.div
               key={stat.value}
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : undefined}
-              transition={{ duration: 0.5, delay: i * 0.08, ease: "easeOut" }}
+              initial={{ x: enterOffset(i), opacity: 0 }}
+              animate={isInView ? { x: "0%", opacity: 1 } : undefined}
+              transition={{
+                duration: 0.9,
+                delay: i * 0.12,
+                ease: [0.22, 1, 0.36, 1],
+                opacity: { duration: 0.35, delay: i * 0.12 },
+              }}
               className="flex flex-col gap-3 rounded-2xl bg-white p-7"
             >
               <span
