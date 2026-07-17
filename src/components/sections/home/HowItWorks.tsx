@@ -89,11 +89,16 @@ function DeckCard({
   count: number;
   progress: MotionValue<number>;
 }) {
+  /* Progress is split into count-1 hand-off transitions (card0→card1,
+   * card1→card2, …) rather than `count` equal segments — the last card
+   * has nothing left to do once it settles, so it shouldn't get its own
+   * segment of scroll with no visible motion. */
+  const transitions = count - 1;
   const isFirst = index === 0;
   const isLast = index === count - 1;
-  const enterAt = (index - 1) / count;
-  const settledAt = index / count;
-  const exitAt = (index + 1) / count;
+  const enterAt = (index - 1) / transitions;
+  const settledAt = index / transitions;
+  const exitAt = (index + 1) / transitions;
 
   const rotateInput = isFirst
     ? [0, exitAt]
@@ -125,8 +130,12 @@ function DeckCard({
   );
 }
 
-const DECK_PER_STEP_VH = 80;
-const DECK_STICKY_VH = 100;
+/* Scroll distance per hand-off (there are count-1 of them) and the height
+ * of the pinned viewport window the deck sits in — sized to the card plus
+ * a little breathing room, not a full 100vh, so the card doesn't float in
+ * a sea of empty space above/below it while pinned. */
+const DECK_PER_STEP_VH = 60;
+const DECK_STICKY_VH = 65;
 
 function SwipeDeck({ steps, className }: { steps: Step[]; className?: string }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -139,9 +148,14 @@ function SwipeDeck({ steps, className }: { steps: Step[]; className?: string }) 
     <div
       ref={wrapperRef}
       className={className}
-      style={{ height: `${steps.length * DECK_PER_STEP_VH + DECK_STICKY_VH}vh` }}
+      style={{
+        height: `${(steps.length - 1) * DECK_PER_STEP_VH + DECK_STICKY_VH}vh`,
+      }}
     >
-      <div className="sticky top-0 flex h-screen flex-col items-center justify-center">
+      <div
+        className="sticky top-0 flex flex-col items-center justify-center"
+        style={{ height: `${DECK_STICKY_VH}vh` }}
+      >
         <div className="relative h-[340px] w-full max-w-[320px] md:h-[420px] md:max-w-[420px]">
           {steps.map((step, i) => (
             <DeckCard
