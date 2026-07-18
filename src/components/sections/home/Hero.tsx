@@ -185,17 +185,17 @@ export default function Hero() {
           )}
         </h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 14, skewX: -8, filter: "blur(4px)" }}
-          animate={{ opacity: 1, y: 0, skewX: 0, filter: "blur(0px)" }}
-          transition={{ duration: 0.6, delay: 1.4, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-[600px] text-base leading-[23px] tracking-[-0.32px] text-[#767676]"
-        >
+        {/* Rendered plain (no entrance animation): this is the page's LCP
+         * candidate, and hiding it behind an opacity/blur fade pushed LCP
+         * out to 6s+ under throttled conditions for a moment nobody's
+         * eyes are actually on (the headline solidify + falling cards are
+         * the visual focus here). */}
+        <p className="max-w-[600px] text-base leading-[23px] tracking-[-0.32px] text-[#767676]">
           The assistant guarding the CEO&apos;s calendar. The social media
           manager who is the brand&apos;s voice. The accountant keeping the
           lights on. We train and place the operators behind the business, so
           you can get back to running it.
-        </motion.p>
+        </p>
 
         <motion.div
           initial={{ opacity: 0, y: 16 }}
