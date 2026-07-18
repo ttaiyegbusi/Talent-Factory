@@ -16,7 +16,7 @@ export default function Footer() {
               {SITE_NAME}
             </span>
           </Link>
-          <p className="mt-4 text-sm leading-relaxed text-[#767676]">
+          <p className="mt-4 text-sm leading-relaxed text-[#707070]">
             {SITE_DESCRIPTION}
           </p>
         </div>
@@ -30,7 +30,7 @@ export default function Footer() {
                   <li key={href}>
                     <Link
                       href={href}
-                      className="text-sm text-[#767676] hover:text-[#171717]"
+                      className="text-sm text-[#707070] hover:text-[#171717]"
                     >
                       {label}
                     </Link>
@@ -41,7 +41,7 @@ export default function Footer() {
           ))}
         </div>
       </div>
-      <div className="border-t border-black/5 px-6 py-6 text-center text-xs text-[#767676]">
+      <div className="border-t border-black/5 px-6 py-6 text-center text-xs text-[#707070]">
         © {new Date().getFullYear()} {SITE_NAME}. All rights reserved.
       </div>
     </footer>
