@@ -137,10 +137,10 @@ function ModeCard({
   const x = useTransform(progress, (v) =>
     animated ? `${(1 - v) * STACK_OFFSET_PCT[idx]}%` : "0%"
   );
-  const boxShadow = useTransform(
-    progress,
-    [0, 1],
-    ["0 24px 48px rgba(0,0,0,0.25)", "0 0px 0px rgba(0,0,0,0)"]
+  const boxShadow = useTransform(progress, (v) =>
+    animated
+      ? `0 ${24 * (1 - v)}px ${48 * (1 - v)}px rgba(0,0,0,${0.25 * (1 - v)})`
+      : "0 0px 0px rgba(0,0,0,0)"
   );
   const Decor = decors[card.decor];
 

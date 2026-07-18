@@ -39,7 +39,11 @@ function randomFor(ch: string) {
  * symbol -> symbols) and locks into its final form left-to-right.
  * Rendered in the mono font, so the flicker never shifts layout.
  * Once triggered, it keeps re-scrambling on a loop (scramble, hold,
- * scramble again) for as long as the component is mounted.
+ * scramble again) — but only while actually on screen. `play` comes from
+ * the section's once-true "has it ever entered view" flag (keeps the
+ * original entrance delay); a second, un-once'd useInView here tracks
+ * *current* visibility so the rAF loop pauses the moment it scrolls out
+ * instead of burning CPU/battery indefinitely in the background.
  */
 function GlitchText({
   target,
@@ -51,9 +55,12 @@ function GlitchText({
   delay: number;
 }) {
   const [display, setDisplay] = useState(target);
+  const spanRef = useRef<HTMLSpanElement>(null);
+  const isVisible = useInView(spanRef, { amount: 0.1 });
+  const hasStarted = useRef(false);
 
   useEffect(() => {
-    if (!play) return;
+    if (!play || !isVisible) return;
     const duration = 1100;
     const flickerEvery = 45;
     const holdBetweenCycles = 3200;
@@ -93,15 +100,19 @@ function GlitchText({
       raf = requestAnimationFrame(loop);
     };
 
-    runCycle(delay * 1000);
+    /* Only the very first activation gets the per-card stagger delay;
+     * resuming after scrolling back into view starts right away. */
+    runCycle(hasStarted.current ? 0 : delay * 1000);
+    hasStarted.current = true;
+
     return () => {
       cancelled = true;
       cancelAnimationFrame(raf);
       clearTimeout(timeout);
     };
-  }, [play, target, delay]);
+  }, [play, isVisible, target, delay]);
 
-  return <span>{display}</span>;
+  return <span ref={spanRef}>{display}</span>;
 }
 
 /*
