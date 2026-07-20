@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -20,9 +20,14 @@ export default function Navbar() {
   const enterDelay = pathname === "/" ? 1.9 : 0;
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
+  /* Close the mobile menu on route change. Adjusting state during render
+   * (rather than in an effect) avoids the extra "open, then closed" paint
+   * a post-commit effect would cause. */
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setOpen(false);
-  }, [pathname]);
+  }
 
   return (
     <motion.header
