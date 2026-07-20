@@ -5,25 +5,25 @@ import StepsDeck, { type Step } from "@/components/ui/StepsDeck";
 
 const steps: Step[] = [
   {
-    title: "Tell us what you need",
-    body: "A quick note on the role and how it fits your team. The clearer you are, the sharper our shortlist.",
+    title: "Apply and get tested",
+    body: "Show us what you can do. We test real skills, not just what's on your résumé.",
     bg: "#c8f0d9",
   },
   {
-    title: "Meet a real shortlist",
-    body: "We send a handful of vetted people matched to your needs and culture. Chat with the ones you like.",
+    title: "Get trained and certified",
+    body: "We prepare you to the standard our clients expect, before you meet anyone.",
     bg: "#ffd9c0",
   },
   {
-    title: "Say yes, start working",
-    body: "Pick your person. We sort contracts, onboarding, and kickoff so the work starts right away.",
+    title: "Get matched and start earning",
+    body: "We place you with a client who needs exactly what you offer.",
     bg: "#c0d5ff",
   },
 ];
 
-export default function HowItWorks() {
+export default function HowYouJoin() {
   return (
-    <section className="bg-[#fffaeb] py-24">
+    <section id="how-it-works" className="bg-[#fffaeb] py-24">
       <div className="mx-auto max-w-6xl px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -37,11 +37,11 @@ export default function HowItWorks() {
             className="text-[32px] font-semibold leading-[1.15] tracking-[-1.2px] text-black md:text-[44px] md:tracking-[-1.6px]"
             style={{ fontFamily: "var(--font-bricolage)" }}
           >
-            Three steps, no runaround
+            Three steps to your next client
           </h2>
           <p className="max-w-md text-base leading-[23px] tracking-[-0.32px] text-[#767676]">
-            Tell us what you need, meet a shortlist, and start working.
-            That&apos;s it.
+            Apply, get trained, get matched. No ghosting, no endless
+            applications.
           </p>
         </motion.div>
 
@@ -52,15 +52,18 @@ export default function HowItWorks() {
           transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
           className="mt-6 flex justify-center"
         >
-          <button className="group flex h-[52px] items-center gap-2 rounded-[10px] bg-[#171717] px-7 text-[15px] font-medium tracking-[-0.3px] text-white transition-opacity hover:opacity-90">
-            Tell us what you need
+          <a
+            href="/join"
+            className="group flex h-[52px] items-center gap-2 rounded-[10px] bg-[#171717] px-7 text-[15px] font-medium tracking-[-0.3px] text-white transition-opacity hover:opacity-90"
+          >
+            Apply now
             <span
               aria-hidden
               className="transition-transform duration-200 group-hover:translate-x-1"
             >
               →
             </span>
-          </button>
+          </a>
         </motion.div>
 
         <StepsDeck steps={steps} className="mt-8" />

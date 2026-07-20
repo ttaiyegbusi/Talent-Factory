@@ -2,9 +2,26 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import Button from "@/components/ui/Button";
+import Link from "next/link";
+import Button, { buttonVariants } from "@/components/ui/Button";
 
-export default function CTABanner() {
+type CTABannerProps = {
+  heading?: string;
+  body?: string;
+  primaryLabel?: string;
+  primaryHref?: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
+};
+
+export default function CTABanner({
+  heading = "Stop winging the hire.",
+  body = "Whatever your business is missing, the person who fills the gap is probably already in our pool. Tell us, and we'll introduce you within a day.",
+  primaryLabel = "Find your person",
+  primaryHref,
+  secondaryLabel = "Browse the pool",
+  secondaryHref,
+}: CTABannerProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.5 });
 
@@ -27,7 +44,7 @@ export default function CTABanner() {
           className="text-[32px] font-semibold leading-[1.15] tracking-[-1.2px] text-white md:text-[44px] md:tracking-[-1.6px]"
           style={{ fontFamily: "var(--font-bricolage)" }}
         >
-          Stop winging the hire.
+          {heading}
         </motion.h2>
 
         <motion.p
@@ -36,9 +53,7 @@ export default function CTABanner() {
           transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
           className="max-w-xl text-base leading-[24px] tracking-[-0.32px] text-[#b8b8b8] md:text-lg"
         >
-          Whatever your business is missing, the person who fills the gap is
-          probably already in our pool. Tell us, and we&apos;ll introduce you
-          within a day.
+          {body}
         </motion.p>
 
         <motion.div
@@ -47,15 +62,38 @@ export default function CTABanner() {
           transition={{ duration: 0.5, delay: 0.22, ease: "easeOut" }}
           className="mt-2 flex w-full flex-col gap-3 sm:w-auto sm:flex-row"
         >
-          <Button className="w-full sm:w-auto sm:min-w-[190px]">
-            Find your person
-          </Button>
-          <Button
-            variant="secondary"
-            className="w-full sm:w-auto sm:min-w-[190px]"
-          >
-            Browse the pool
-          </Button>
+          {primaryHref ? (
+            <Link
+              href={primaryHref}
+              className={buttonVariants({
+                className: "w-full sm:w-auto sm:min-w-[190px]",
+              })}
+            >
+              {primaryLabel}
+            </Link>
+          ) : (
+            <Button className="w-full sm:w-auto sm:min-w-[190px]">
+              {primaryLabel}
+            </Button>
+          )}
+          {secondaryHref ? (
+            <Link
+              href={secondaryHref}
+              className={buttonVariants({
+                variant: "secondary",
+                className: "w-full sm:w-auto sm:min-w-[190px]",
+              })}
+            >
+              {secondaryLabel}
+            </Link>
+          ) : (
+            <Button
+              variant="secondary"
+              className="w-full sm:w-auto sm:min-w-[190px]"
+            >
+              {secondaryLabel}
+            </Button>
+          )}
         </motion.div>
       </div>
     </section>
