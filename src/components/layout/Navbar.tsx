@@ -12,8 +12,11 @@ import { NAV_LINKS, SITE_NAME } from "@/lib/constants";
  * Transparent navbar overlaying the top of every marketing page.
  * On the home page it fades in last (1.9s), closing the hero
  * choreography; on direct loads of any other page it shows immediately.
- * Below `md`, nav links + CTAs move into a hamburger-triggered dropdown
- * instead of competing with the logo for space in the top bar.
+ * Below `lg`, nav links + CTAs move into a hamburger-triggered dropdown
+ * instead of competing with the logo for space in the top bar — the full
+ * row (logo + 3 links + 2 buttons) needs ~790px to fit on one line
+ * without wrapping, so switching at `md` (768px) left a cramped zone
+ * right above it where link labels wrapped mid-word.
  */
 export default function Navbar() {
   const pathname = usePathname();
@@ -47,7 +50,7 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <div className="hidden items-center gap-4 md:flex">
+        <div className="hidden items-center gap-4 lg:flex">
           {NAV_LINKS.map(({ label, href }) => (
             <Link
               key={href}
@@ -59,7 +62,7 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="hidden items-center gap-2.5 md:flex">
+        <div className="hidden items-center gap-2.5 lg:flex">
           <Link
             href="/join"
             className={buttonVariants({ variant: "secondary", size: "sm" })}
@@ -79,7 +82,7 @@ export default function Navbar() {
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
-          className="flex size-10 items-center justify-center rounded-full bg-white md:hidden"
+          className="flex size-10 items-center justify-center rounded-full bg-white lg:hidden"
         >
           <span className="relative flex h-3 w-4 flex-col justify-between">
             <motion.span
@@ -112,7 +115,7 @@ export default function Navbar() {
               transition={{ duration: 0.2 }}
               onClick={() => setOpen(false)}
               aria-hidden
-              className="fixed inset-0 bg-black/20 md:hidden"
+              className="fixed inset-0 bg-black/20 lg:hidden"
             />
             <motion.div
               key="panel"
@@ -120,7 +123,7 @@ export default function Navbar() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="relative mx-4 mb-4 flex flex-col gap-1 rounded-2xl bg-white p-4 shadow-lg md:hidden"
+              className="relative mx-4 mb-4 flex flex-col gap-1 rounded-2xl bg-white p-4 shadow-lg lg:hidden"
             >
               {NAV_LINKS.map(({ label, href }) => (
                 <Link
