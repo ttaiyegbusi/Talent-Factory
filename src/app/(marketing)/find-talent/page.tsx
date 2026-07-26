@@ -20,7 +20,7 @@ export default function FindTalentPage() {
       <TrustFeatures />
       <HowItWorks />
       <Testimonials />
-      <CTABanner />
+      <CTABanner primaryHref="/hire" secondaryHref="#talent" />
     </>
   );
 }

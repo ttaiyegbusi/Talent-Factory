@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import StepsDeck, { type Step } from "@/components/ui/StepsDeck";
 
 const steps: Step[] = [
@@ -52,7 +53,10 @@ export default function HowItWorks() {
           transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
           className="mt-6 flex justify-center"
         >
-          <button className="group flex h-[52px] items-center gap-2 rounded-[10px] bg-[#171717] px-7 text-[15px] font-medium tracking-[-0.3px] text-white transition-opacity hover:opacity-90">
+          <Link
+            href="/hire"
+            className="group flex h-[52px] items-center gap-2 rounded-[10px] bg-[#171717] px-7 text-[15px] font-medium tracking-[-0.3px] text-white transition-opacity hover:opacity-90"
+          >
             Tell us what you need
             <span
               aria-hidden
@@ -60,7 +64,7 @@ export default function HowItWorks() {
             >
               →
             </span>
-          </button>
+          </Link>
         </motion.div>
 
         <StepsDeck steps={steps} className="mt-8" />

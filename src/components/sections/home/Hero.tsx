@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Button from "@/components/ui/Button";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/Button";
 
 /*
  * Card fall-in physics measured from the Anchor reference video
@@ -203,15 +204,23 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 1.6, ease: "easeOut" }}
           className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row"
         >
-          <Button className="w-full sm:w-auto sm:min-w-[190px]">
+          <Link
+            href="/hire"
+            className={buttonVariants({
+              className: "w-full sm:w-auto sm:min-w-[190px]",
+            })}
+          >
             Find your person
-          </Button>
-          <Button
-            variant="secondary"
-            className="w-full sm:w-auto sm:min-w-[190px]"
+          </Link>
+          <Link
+            href="/find-talent"
+            className={buttonVariants({
+              variant: "secondary",
+              className: "w-full sm:w-auto sm:min-w-[190px]",
+            })}
           >
             See who is available
-          </Button>
+          </Link>
         </motion.div>
       </div>
 

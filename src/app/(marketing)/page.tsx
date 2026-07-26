@@ -17,7 +17,7 @@ export default function HomePage() {
       <Stats />
       <HowItWorks />
       <Testimonials />
-      <CTABanner />
+      <CTABanner primaryHref="/hire" secondaryHref="/find-talent" />
     </>
   );
 }

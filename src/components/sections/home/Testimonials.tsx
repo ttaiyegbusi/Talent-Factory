@@ -1,6 +1,7 @@
 "use client";
 
-import Button from "@/components/ui/Button";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/Button";
 import TestimonialsGrid, { type Testimonial } from "@/components/ui/TestimonialsGrid";
 
 const testimonials: Testimonial[] = [
@@ -101,7 +102,9 @@ function Intro() {
         Our clients hire once and stay. Our talent gets placed, does great
         work, and sticks around.
       </p>
-      <Button className="w-fit">Get started</Button>
+      <Link href="/hire" className={buttonVariants({ className: "w-fit" })}>
+        Get started
+      </Link>
     </>
   );
 }
