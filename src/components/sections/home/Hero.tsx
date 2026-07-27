@@ -46,9 +46,10 @@ type CardDef = {
 
 const cards: CardDef[] = [
   {
+    /* fg darkened from #fa7319 to clear WCAG AA 4.5:1 against this bg. */
     label: "Product Designer",
     bg: "#ffd9c0",
-    fg: "#fa7319",
+    fg: "#a74504",
     cx: 501.8,
     cy: 101,
     w: 420,
@@ -57,9 +58,11 @@ const cards: CardDef[] = [
     delay: 0.2,
   },
   {
+    /* fg switched to the same dark-brown-on-yellow pairing as Button.tsx's
+     * primary variant — was near-white, 1.74:1. */
     label: "Accountant",
     bg: "#f6b51e",
-    fg: "#fffaeb",
+    fg: "#5c4716",
     cx: 722.8,
     cy: 207,
     w: 420,
@@ -68,9 +71,10 @@ const cards: CardDef[] = [
     delay: 0,
   },
   {
+    /* fg darkened from #fb3748 to clear WCAG AA 4.5:1 against this bg. */
     label: "Design Engineer",
     bg: "#ffc0c5",
-    fg: "#fb3748",
+    fg: "#b40413",
     cx: 524,
     cy: 309,
     w: 400,
@@ -79,9 +83,10 @@ const cards: CardDef[] = [
     delay: 0.35,
   },
   {
+    /* fg darkened from #335cff to clear WCAG AA 4.5:1 against this bg. */
     label: "Data Analyst",
     bg: "#c0d5ff",
-    fg: "#335cff",
+    fg: "#0d3dff",
     cx: 941,
     cy: 309,
     w: 400,

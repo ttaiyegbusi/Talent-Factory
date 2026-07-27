@@ -29,6 +29,11 @@ type CardDef = {
   body: string;
   bg: string;
   titleAtTop?: boolean;
+  /* The yellow/orange cards are too light for white text to clear WCAG AA
+   * on their own — rather than darken the vivid card color itself (or the
+   * dark-navy third card, which doesn't need it), a scrim sits behind just
+   * the text block. */
+  needsScrim?: boolean;
   z: number;
   decor: "sun" | "seal" | "ring";
 };
@@ -38,6 +43,7 @@ const cards: CardDef[] = [
     title: "Hire for keeps",
     body: "Bring someone onto your team permanently, an assistant, a marketer, an accountant, matched for the long haul and the way you work.",
     bg: "#f6b51e",
+    needsScrim: true,
     z: 30,
     decor: "sun",
   },
@@ -46,6 +52,7 @@ const cards: CardDef[] = [
     body: "A whole area off your plate: support, bookkeeping, social, operations. We staff it, train it, and keep it running for you.",
     bg: "#fa7319",
     titleAtTop: true,
+    needsScrim: true,
     z: 20,
     decor: "seal",
   },
@@ -157,6 +164,18 @@ function ModeCard({
       className="relative mx-auto h-[398px] w-full max-w-[332px] cursor-pointer rounded-[16px] md:min-w-0 md:flex-1"
     >
       <Decor />
+      {card.needsScrim && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 h-[220px] rounded-[16px]"
+          style={{
+            [card.titleAtTop ? "top" : "bottom"]: 0,
+            backgroundImage: card.titleAtTop
+              ? "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.55) 50%, transparent 100%)"
+              : "linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.65) 55%, transparent 100%)",
+          }}
+        />
+      )}
       <div
         className={`relative flex h-full flex-col gap-3 p-[26px] ${
           card.titleAtTop ? "justify-start" : "justify-start pt-[190px]"

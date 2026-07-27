@@ -5,7 +5,9 @@ type ButtonVariant = "primary" | "secondary";
 type ButtonSize = "sm" | "md";
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-[#f6b51e] text-[#624c18]",
+  /* #624c18 measured at 4.499:1 against this bg — a hair under WCAG AA's
+   * 4.5:1. #5c4716 clears it with real margin (4.88:1). */
+  primary: "bg-[#f6b51e] text-[#5c4716]",
   secondary: "bg-white text-[#2b2b2b]",
 };
 

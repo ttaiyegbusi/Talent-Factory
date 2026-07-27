@@ -30,7 +30,9 @@ function StepCardContent({ step, index }: { step: Step; index: number }) {
       </span>
 
       <div className="relative flex h-full min-h-[190px] flex-col gap-3">
-        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/45">
+        {/* black/45 measured at 3.1-3.2:1 against these pastel backgrounds,
+         * short of WCAG AA's 4.5:1 — /60 clears it on all three. */}
+        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">
           Step 0{index + 1}
         </span>
         <h3
