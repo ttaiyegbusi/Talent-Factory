@@ -11,77 +11,117 @@ type Role = {
   fg: string;
 };
 
-/* Same five roles + colors as the homepage Hero's falling cards, so this
- * page reads as a continuation of the brand rather than a new palette. */
+/* Same 9 categories as the /hire and /join forms' role dropdown, cycling
+ * through the brand's 5 accent colors (same accessible values as the
+ * homepage Hero's role chips) so the palette repeats rather than
+ * introducing new ones. */
 const roles: Role[] = [
+  {
+    name: "Executive Assistant",
+    browseLabel: "Browse Assistants",
+    blurb: "Keeps your calendar, inbox, and priorities running without you micromanaging any of it.",
+    bg: "#ffd9c0",
+    fg: "#a74504",
+  },
+  {
+    name: "Accountant / Bookkeeper",
+    browseLabel: "Browse Accountants",
+    blurb: "Books closed on time, every time, no chasing required.",
+    bg: "#f6b51e",
+    fg: "#5c4716",
+  },
+  {
+    name: "Marketing Specialist",
+    browseLabel: "Browse Marketers",
+    blurb: "Plans and ships campaigns that actually move the needle, not just the calendar.",
+    bg: "#ffc0c5",
+    fg: "#b40413",
+  },
+  {
+    name: "Customer Support",
+    browseLabel: "Browse Support",
+    blurb: "Answers fast, escalates smart, and makes every customer feel handled.",
+    bg: "#c0d5ff",
+    fg: "#0d3dff",
+  },
   {
     name: "Product Designer",
     browseLabel: "Browse Designers",
     blurb: "From wireframes to shipped UI, matched to your product's stage.",
-    bg: "#ffd9c0",
-    fg: "#fa7319",
+    bg: "#171717",
+    fg: "#ffffff",
   },
   {
-    name: "Accountant",
-    browseLabel: "Browse Accountants",
-    blurb: "Books closed on time, every time, no chasing required.",
-    bg: "#f6b51e",
-    fg: "#fffaeb",
+    name: "Software Engineer",
+    browseLabel: "Browse Engineers",
+    blurb: "Full-stack operators who can own a feature end to end.",
+    bg: "#ffd9c0",
+    fg: "#a74504",
   },
   {
     name: "Design Engineer",
     browseLabel: "Browse Engineers",
     blurb: "Ships polished front-end work without a hand-off tax.",
-    bg: "#ffc0c5",
-    fg: "#fb3748",
+    bg: "#f6b51e",
+    fg: "#5c4716",
   },
   {
     name: "Data Analyst",
     browseLabel: "Browse Analysts",
     blurb: "Turns your dashboards into decisions, not just charts.",
     bg: "#c0d5ff",
-    fg: "#335cff",
+    fg: "#0d3dff",
   },
   {
-    name: "Software Engineer",
-    browseLabel: "Browse Engineers",
-    blurb: "Full-stack operators who can own a feature end to end.",
+    name: "Operations Manager",
+    browseLabel: "Browse Managers",
+    blurb: "Keeps the day-to-day running so nothing falls through the cracks.",
     bg: "#171717",
     fg: "#ffffff",
   },
 ];
 
+/* Same right-to-left entrance as Stats/TrustFeatures: cards start bunched
+ * past the right edge and settle leftward. Capped at 5 card-widths so a
+ * long carousel like this one doesn't fling the earliest cards in at a
+ * wildly higher velocity than the rest. */
+const enterOffset = (index: number, count: number) =>
+  `${Math.min(count - index, 5) * 108}%`;
+
 function RoleCard({
   role,
   index,
+  count,
   isInView,
 }: {
   role: Role;
   index: number;
+  count: number;
   isInView: boolean;
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={isInView ? { opacity: 1, y: 0 } : undefined}
+      initial={{ x: enterOffset(index, count), opacity: 0 }}
+      animate={isInView ? { x: "0%", opacity: 1 } : undefined}
       whileHover={{ y: -4 }}
       transition={{
-        duration: 0.5,
-        delay: index * 0.08,
-        ease: "easeOut",
+        duration: 0.9,
+        delay: Math.min(index, 6) * 0.08,
+        ease: [0.22, 1, 0.36, 1],
+        opacity: { duration: 0.35, delay: Math.min(index, 6) * 0.08 },
         y: { type: "spring", stiffness: 300, damping: 22 },
       }}
       style={{ backgroundColor: role.bg }}
-      className="flex flex-col gap-4 rounded-2xl p-7"
+      className="flex h-[220px] w-[240px] shrink-0 snap-start flex-col gap-3 rounded-2xl p-6"
     >
       <h3
-        className="text-xl font-semibold leading-tight tracking-[-0.3px]"
+        className="text-lg font-semibold leading-tight tracking-[-0.3px]"
         style={{ color: role.fg, fontFamily: "var(--font-bricolage)" }}
       >
         {role.name}
       </h3>
       <p
-        className="text-[14px] leading-[21px]"
+        className="text-[13.5px] leading-[20px]"
         style={{ color: role.fg, opacity: 0.85 }}
       >
         {role.blurb}
@@ -98,11 +138,11 @@ function RoleCard({
 }
 
 export default function TalentCarousel() {
-  const gridRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(gridRef, { once: true, amount: 0.3 });
+  const rowRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(rowRef, { once: true, amount: 0.3 });
 
   return (
-    <section id="talent" className="bg-[#fffaeb] py-24">
+    <section id="talent" className="overflow-hidden bg-[#fffaeb] py-24">
       <div className="mx-auto max-w-6xl px-6">
         <div className="flex flex-col gap-3">
           <p className="text-sm text-[#767676]">Browse by category</p>
@@ -119,12 +159,35 @@ export default function TalentCarousel() {
         </div>
 
         <div
-          ref={gridRef}
-          className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+          ref={rowRef}
+          className="mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          style={{
+            maskImage:
+              "linear-gradient(to right, black 0%, black 90%, transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to right, black 0%, black 90%, transparent 100%)",
+          }}
         >
           {roles.map((role, i) => (
-            <RoleCard key={role.name} role={role} index={i} isInView={isInView} />
+            <RoleCard
+              key={role.name}
+              role={role}
+              index={i}
+              count={roles.length}
+              isInView={isInView}
+            />
           ))}
+        </div>
+
+        <div className="mt-4 flex items-center gap-1.5 text-sm text-[#767676]">
+          {roles.map((role) => (
+            <span
+              key={role.name}
+              aria-hidden
+              className="size-1.5 rounded-full bg-[#767676]/35"
+            />
+          ))}
+          <span className="ml-1.5">swipe to see more</span>
         </div>
       </div>
     </section>
